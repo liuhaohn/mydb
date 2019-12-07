@@ -1,0 +1,476 @@
+options
+{
+    STATIC = false ;
+}
+PARSER_BEGIN (HaoQLParser)
+    package com.hao.parser;
+
+    import com.hao.parser.statement.*;
+   import java.util.ArrayList;
+   import java.util.LinkedHashMap;
+   public class HaoQLParser {
+         Statement initParser() throws ParseException, TokenMgrError {
+            return init();
+         }
+   }
+PARSER_END (HaoQLParser)
+
+SKIP: { "\n" | "\r" | "\r\n" |"\\"|"\t"|" "}
+
+TOKEN [IGNORE_CASE]:
+{
+ <CREATE :("Create Table")>
+|<DROP : ("Drop Table")>
+|<SELECT : ("Select")>
+|<INSERT : ("Insert Into")>
+|<UPDATE : ("Update")>
+|<SET : ("Set")>
+|<DELETE : ("Delete From")>
+|<DISTINCT : ("Distinct")>
+|<VALUES : ("Values")>
+|<FROM : ("From")>
+|<WHERE : ("Where")>
+|<ORDERBY : ("Order By")>
+|<NULL : ("Null")>
+|<DATATYPE : ("INT")|("STR")|("FLOAT")>
+|<DIGIT :(["0"-"9"]) >
+|<INTEGER :(["0"-"9"])+ >
+|<LETTER:(["a"-"z"]) >
+|<NUMERAL:(<LETTER>)(["a"-"z","0"-"9"])+ >
+|<LPAREN:("(")>
+|<RPAREN:(")")>
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+|<COMMA:(",")>
+|<DOT: "." >
+//|<SPACE: " " >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+|<LT:("<")>
+|<GT:(">")>
+|<EQ:("=")>
+|<COMP_OP:(<LT>|<GT>|<EQ>)>
+|<QUOTE:"\""|"'">
+}
+
+//SPECIAL_TOKEN : {<COMMENT:("#")+(<DIGIT>|<LETTER>|" ")*("#")+>}
+
+/*表名语法，单个字母或者字母开头带数字的串*/
+Token TableName():
+{
+    Token T;
+}
+{
+    T = <LETTER>
+    {return T;} |
+    T = <NUMERAL>
+    {return T;}
+}
+
+/*属性名语法，同表名语法*/
+Token AttributeName():
+{
+    Token T;
+}
+{
+    T = <LETTER>
+    {return T;} |
+    T = <NUMERAL>
+    {return T;}
+}
+
+/*列名，表名.属性名*/
+Token ColumnName():
+{
+    Token T;
+    Token S = null;
+}
+{
+    T = TableName()[<DOT> S = AttributeName()]
+    {
+        if (S!= null) {T.image = T.image + "." + S.image;}
+        return T;
+    }
+}
+
+/*字符串常量*/
+String Literal():
+{
+    Token T;
+    StringBuilder sb = new StringBuilder();
+}
+{
+    <QUOTE>
+    (T = <DIGIT> {sb.append(T.image);}
+    |T = <LETTER> {sb.append(T.image);}
+    |T = <LPAREN> {sb.append(T.image);}
+    |T = <RPAREN> {sb.append(T.image);}
+    |T = <COMMA> {sb.append(T.image);}
+    |T = <DOT> {sb.append(T.image);}
+    )*
+    <QUOTE>
+    {return sb.toString();}
+}
+
+
+/*主语法分析，一条HaoQL可以是以下形式*/
+Statement init():
+{
+    Statement stmt = null;
+}
+{
+    (
+          stmt = CreateStatement()
+        | stmt = DropStatement()
+        | stmt = SelectStatement()
+        | stmt = InsertStatement()
+        | stmt = DeleteStatement()
+        | stmt = UpdateStatement()
+
+    )*
+    <EOF>
+    {return stmt;}
+}
+
+/*创建语句语法create <tname> (属性名 类型,...)，'属性名 类型,...'作为子语法*/
+Statement CreateStatement():
+{
+    Token T;
+    Statement stmt;
+    LinkedHashMap<String,String> attributes;
+}
+{
+    <CREATE>
+    T = TableName()
+    <LPAREN>
+    attributes = AttrTypeList()
+    <RPAREN>
+    {
+        stmt = new CreateStatement(T.image, attributes);
+        return stmt;
+    }
+}
+
+LinkedHashMap AttrTypeList():
+{
+   Token AName;
+   Token AType;
+   LinkedHashMap<String, String> var = new LinkedHashMap<String, String>();
+}
+{
+    AName = AttributeName()
+    AType = <DATATYPE>
+    {   var.put(AName.image,AType.image);    }
+    (
+        [<COMMA>]
+        AName = AttributeName()
+        AType = <DATATYPE>
+        {   var.put(AName.image,AType.image);    }
+    )*
+    {
+        return var;
+    }
+}
+
+Statement DropStatement():
+{
+    Token T;
+}
+{
+    <DROP>
+    T = TableName()
+    {
+        return new DropStatement(T.image);
+    }
+}
+
+Statement DeleteStatement():
+{
+    Token T;
+    ArrayList<String> clause = null;
+}
+{
+    <DELETE>
+    T = TableName()
+    [<WHERE> clause = Condition()]
+    {
+        return new DeleteStatement(T.image, clause);
+    }
+}
+
+Statement InsertStatement():
+{
+    Token T;
+    ArrayList<String> attr;
+    List<List<String>> values;
+    Statement stmt;
+}
+{
+    <INSERT>
+    T = TableName()
+    <LPAREN>
+    attr = AttrList()
+    <RPAREN>
+    ( values = tuples()
+        {   return new InsertStatement(T.image, attr, values);    }
+    | stmt = SelectStatement()
+        {   return new InsertStatement(T.image, attr, (SelectStatement)stmt);    }
+    )
+}
+
+ArrayList<String> AttrList():
+{
+    Token T;
+    ArrayList<String> attr = new ArrayList<String>();
+}
+{
+    T = AttributeName()
+        {attr.add(T.image);}
+    ( <COMMA>
+        T = AttributeName()
+        {attr.add(T.image);}
+    )*
+    {return attr;}
+}
+
+List<List<String>> tuples():
+{
+    Token T;
+    List<String> tup;
+    List<List<String>> values = new ArrayList<List<String>>();
+}
+{
+    <VALUES> <LPAREN> tup = Values() <RPAREN>
+    {values.add(tup);}
+    (
+        <COMMA>
+        <LPAREN> tup = Values() <RPAREN>
+        {values.add(tup);}
+    )*
+    {return values;}
+}
+
+String Value():
+{   Token T;
+    String S;
+}
+{
+    T = <NULL>
+        {return T.image;}
+    | S = Literal()
+        {return S;}
+    | T = <INTEGER>
+        {return T.image;}
+    | T = <DIGIT>
+        {return T.image;}
+}
+
+List<String> Values():
+{
+    String T;
+    List<String> vals = new ArrayList<String>();
+}
+{
+    T = Value()
+        {vals.add(T);}
+    ( <COMMA>
+        T = Value()
+        {vals.add(T);}
+    )*
+    {return vals;}
+}
+
+Statement SelectStatement():
+{
+    Token D = null;
+    Statement stmt;
+    ArrayList<String> selList;
+    ArrayList<String> tabList;
+    ArrayList<String> clause = null;
+    Token O = null;
+}
+{
+    <SELECT>
+    [D = <DISTINCT>]
+    selList = selectList()
+    <FROM>
+    tabList = tableList()
+    [<WHERE> clause = Condition()]
+    [<ORDERBY> O = ColumnName()]
+    {
+        stmt = new SelectStatement(D, selList, tabList, clause, (O==null? "": O.image));
+        return stmt;
+    }
+}
+
+ArrayList<String> selectList():
+{
+    ArrayList<String> subList;
+}
+{
+    <STAR>
+        {return  new ArrayList<String>(){{add("*");}};}
+    | subList = selectSubList()
+        {return subList;}
+}
+
+ArrayList<String> selectSubList():
+{
+    Token T;
+    ArrayList<String> subList = new ArrayList<String>();
+}
+{
+    T = ColumnName()
+    {subList.add(T.image);}
+    (
+        <COMMA>
+        T = ColumnName()
+        {subList.add(T.image);}
+    )*
+    {return subList;}
+}
+
+ArrayList<String> tableList():
+{
+    Token T;
+    ArrayList<String> tabList = new ArrayList<String>();
+}
+{
+    T = TableName()
+    {tabList.add(T.image);}
+    (
+        <COMMA>
+        T = TableName()
+        {tabList.add(T.image);}
+    )*
+    {return tabList;}
+}
+
+String term():
+{   Token T;
+    String S;
+}
+{
+    T = ColumnName()
+        {return T.image;}
+    | S = Literal()
+        {return S;}
+    | T = <INTEGER>
+        {return T.image;}
+    | T = <DIGIT>
+        {return T.image;}
+}
+
+ArrayList<String> exp() :
+{
+  Token T;
+  String S;
+  ArrayList<String> expList = new ArrayList<String>();
+}
+{
+    [T = <LPAREN>    { expList.add(T.image);} ]
+    S = term()           { expList.add(S);}
+    (    T = <PLUS>      { expList.add(T.image);}
+         S = term()      { expList.add(S);}
+         [T = <RPAREN>    { expList.add(T.image);} ]
+        |T = <MINUS>     { expList.add(T.image);}
+         S = term()      { expList.add(S);}
+         [T = <RPAREN>    { expList.add(T.image);} ]
+        |T = <STAR>      { expList.add(T.image);}
+         S = term()      { expList.add(S);}
+         [T = <RPAREN>    { expList.add(T.image);} ]
+        |T = <SLASH>     { expList.add(T.image);}
+         S = term()      { expList.add(S);}
+         [T = <RPAREN>    { expList.add(T.image);} ]
+    )*
+    { return expList; }
+}
+
+ArrayList<String> boolFactor() :
+{
+    Token T;
+    ArrayList<String> S;
+    ArrayList<String> cond = new ArrayList<String>();
+}
+{
+    [T = <LBRACKET>  { cond.add(T.image); }]
+    [T = "NOT "  { cond.add(T.image); }]
+    S = exp()   { cond.addAll(S); }
+    (   T = <LT>  { cond.add(T.image); }
+       |T = <GT>  { cond.add(T.image); }
+       |T = <EQ>  { cond.add(T.image); }
+    )
+    S = exp()   { cond.addAll(S); }
+    [T = <RBRACKET>  { cond.add(T.image); }]
+    { return cond;}
+}
+
+ArrayList<String> boolTerm() :
+{
+    Token T;
+    ArrayList<String> S;
+    ArrayList<String> cond = new ArrayList<String>();
+}
+{
+    S = boolFactor()   { cond.addAll(S); }
+    [
+        T = "AND "  { cond.add(T.image); }
+        S = boolTerm()   { cond.addAll(S); }
+    ]
+    { return cond;}
+}
+
+ArrayList<String> Condition() :
+{
+    Token T;
+    ArrayList<String> S;
+    ArrayList<String> cond = new ArrayList<String>();
+}
+{
+    S = boolTerm()   { cond.addAll(S); }
+    [   T = "OR "          { cond.add(T.image); }
+        S = Condition()   { cond.addAll(S); }
+    ]
+    { return cond;}
+}
+
+Statement UpdateStatement() :
+{
+    Token T;
+    LinkedHashMap<String, String> mp;
+    ArrayList<String> condition;
+}
+{
+    <UPDATE>
+    T = TableName()
+    <SET>
+    mp = AttrValueMap()
+    <WHERE>
+    condition = Condition()
+    {return new UpdateStatement(T.image,mp,condition);}
+}
+
+LinkedHashMap<String, String> AttrValueMap() :
+{
+    Token AttrName;
+    String value;
+    LinkedHashMap<String, String> mp = new LinkedHashMap();
+}
+{
+    AttrName = AttributeName()
+    <EQ>
+    value = Value()
+    {mp.put(AttrName.image, value);}
+    (
+    <COMMA>
+    AttrName = AttributeName()
+    <EQ>
+    value = Value()
+    {mp.put(AttrName.image, value);}
+    )*
+    {return mp;}
+}
