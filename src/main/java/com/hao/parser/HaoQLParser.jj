@@ -5,7 +5,7 @@ options
 PARSER_BEGIN (HaoQLParser)
     package com.hao.parser;
 
-    import com.hao.parser.statement.*;
+    import com.hao.bean.statement.*;
    import java.util.*;
 
    public class HaoQLParser {
@@ -57,7 +57,7 @@ TOKEN [IGNORE_CASE]:
 |<GT:(">")>
 |<EQ:("=")>
 |<COMP_OP:(<LT>|<GT>|<EQ>)>
-|<QUOTE:"\""|"'">
+|<QUOTE:"\""|"\'">
 }
 
 //SPECIAL_TOKEN : {<COMMENT:("#")+(<DIGIT>|<LETTER>|" ")*("#")+>}
@@ -448,15 +448,15 @@ Statement UpdateStatement() :
 {
     Token T;
     LinkedHashMap<String, String> mp;
-    List<List<Expression>> condition;
+    List<List<Expression>> condition=null;
 }
 {
     <UPDATE>
     T = TableName()
     <SET>
     mp = AttrValueMap()
-    <WHERE>
-    condition = Condition()
+    [<WHERE>
+    condition = Condition()]
     {return new UpdateStatement(T.image,mp,condition);}
 }
 

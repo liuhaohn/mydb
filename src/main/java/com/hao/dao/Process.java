@@ -60,25 +60,22 @@ public class Process {
                 }
 
 
-                switch (sb.toString().toLowerCase()) {
-                    case "exit":
-                        writer.println("Thanks for using HaoSQL");
-                        writer.flush();
-                        return;
-                    default:
-//                        writer.println("Output " + input);
-                        parser.ReInit(new StringReader(sb.toString()));
-                        sb = new StringBuilder();
-                        statement = parser.init();
-                        processStatements(statement);
-                        break;
+                if ("exit".equals(sb.toString().toLowerCase())) {
+                    writer.println("Thanks for using HaoSQL");
+                    writer.flush();
+                    return;
+                } else {
+                    parser.ReInit(new StringReader(sb.toString()));
+                    sb = new StringBuilder();
+                    statement = parser.init();
+                    processStatements(statement);
                 }
                 writer.println();
                 writer.flush();
             } catch (ParseException e) {
                 writer.println("Error in parsing the query\r\n");
                 e.printStackTrace();
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 writer.println("Error\r\n");
                 ex.printStackTrace();
             }

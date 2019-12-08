@@ -133,7 +133,7 @@ public class Table {
         for (int i = 0; i < all.data.size(); i++) {
             Object[] objects = all.data.get(i);
 
-            if (SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
+            if (condition==null || SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
                 count++;
                 List<Column> udtc = Arrays.asList(update.columns);
                 for (int j = 0, i1; j < objects.length; j++) {
@@ -156,7 +156,7 @@ public class Table {
         Data all = selectAll();
         for (int i = 0; i < all.data.size(); i++) {
             Object[] objects = all.data.get(i);
-            if (SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
+            if (condition == null || SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
                 count++;
                 objects = null;
             }
