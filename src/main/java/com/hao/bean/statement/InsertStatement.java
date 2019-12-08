@@ -1,4 +1,4 @@
-package com.hao.parser.statement;
+package com.hao.bean.statement;
 
 import java.util.List;
 

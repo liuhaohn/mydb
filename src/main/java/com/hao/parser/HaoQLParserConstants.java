@@ -37,49 +37,55 @@ public interface HaoQLParserConstants {
   /** RegularExpression Id. */
   int NULL = 19;
   /** RegularExpression Id. */
-  int DATATYPE = 20;
+  int OR = 20;
   /** RegularExpression Id. */
-  int DIGIT = 21;
+  int AND = 21;
   /** RegularExpression Id. */
-  int INTEGER = 22;
+  int NOT = 22;
   /** RegularExpression Id. */
-  int LETTER = 23;
+  int DATATYPE = 23;
   /** RegularExpression Id. */
-  int NUMERAL = 24;
+  int DIGIT = 24;
   /** RegularExpression Id. */
-  int LPAREN = 25;
+  int INTEGER = 25;
   /** RegularExpression Id. */
-  int RPAREN = 26;
+  int LETTER = 26;
   /** RegularExpression Id. */
-  int LBRACE = 27;
+  int NUMERAL = 27;
   /** RegularExpression Id. */
-  int RBRACE = 28;
+  int LPAREN = 28;
   /** RegularExpression Id. */
-  int LBRACKET = 29;
+  int RPAREN = 29;
   /** RegularExpression Id. */
-  int RBRACKET = 30;
+  int LBRACE = 30;
   /** RegularExpression Id. */
-  int COMMA = 31;
+  int RBRACE = 31;
   /** RegularExpression Id. */
-  int DOT = 32;
+  int LBRACKET = 32;
   /** RegularExpression Id. */
-  int PLUS = 33;
+  int RBRACKET = 33;
   /** RegularExpression Id. */
-  int MINUS = 34;
+  int COMMA = 34;
   /** RegularExpression Id. */
-  int STAR = 35;
+  int DOT = 35;
   /** RegularExpression Id. */
-  int SLASH = 36;
+  int PLUS = 36;
   /** RegularExpression Id. */
-  int LT = 37;
+  int MINUS = 37;
   /** RegularExpression Id. */
-  int GT = 38;
+  int STAR = 38;
   /** RegularExpression Id. */
-  int EQ = 39;
+  int SLASH = 39;
   /** RegularExpression Id. */
-  int COMP_OP = 40;
+  int LT = 40;
   /** RegularExpression Id. */
-  int QUOTE = 41;
+  int GT = 41;
+  /** RegularExpression Id. */
+  int EQ = 42;
+  /** RegularExpression Id. */
+  int COMP_OP = 43;
+  /** RegularExpression Id. */
+  int QUOTE = 44;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -106,6 +112,9 @@ public interface HaoQLParserConstants {
     "\"Where\"",
     "\"Order By\"",
     "\"Null\"",
+    "\"OR\"",
+    "\"AND\"",
+    "\"NOT\"",
     "<DATATYPE>",
     "<DIGIT>",
     "<INTEGER>",
@@ -128,9 +137,6 @@ public interface HaoQLParserConstants {
     "\"=\"",
     "<COMP_OP>",
     "<QUOTE>",
-    "\"NOT \"",
-    "\"AND \"",
-    "\"OR \"",
   };
 
 }

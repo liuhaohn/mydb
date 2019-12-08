@@ -1,4 +1,4 @@
-package com.hao.parser.statement;
+package com.hao.bean.statement;
 
 public class DropStatement implements Statement {
     @Override

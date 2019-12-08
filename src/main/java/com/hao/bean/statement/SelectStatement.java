@@ -1,8 +1,10 @@
-package com.hao.parser.statement;
+package com.hao.bean.statement;
 
 import java.util.List;
 
 public class SelectStatement implements Statement {
+
+
     @Override
     public StatementType getType() {
         return StatementType.SELECT;
@@ -11,7 +13,7 @@ public class SelectStatement implements Statement {
     boolean hasDistinct = false;
     List<String> columns;
     List<String> tables;
-    List<String> condition;
+    List<List<Expression>> condition; //内部合取，外部析取
     String orderColumn;
 
     public SelectStatement(List<String> columns, List<String> tables) {
@@ -19,13 +21,15 @@ public class SelectStatement implements Statement {
         this.tables = tables;
     }
 
-    public SelectStatement(Object distinct, List<String> columns, List<String> tables, List<String> condition,
+    public SelectStatement(Object distinct, List<String> columns, List<String> tables, List<List<Expression>> condition,
                            String orderColumn) {
-        this.hasDistinct = distinct!=null;
+        this.hasDistinct = distinct != null;
         this.columns = columns;
         this.tables = tables;
         this.condition = condition;
-        if (!orderColumn.isEmpty()) {this.orderColumn = orderColumn;}
+        if (!orderColumn.isEmpty()) {
+            this.orderColumn = orderColumn;
+        }
     }
 
     public String getOrderColumn() {
@@ -60,11 +64,11 @@ public class SelectStatement implements Statement {
         this.tables = tables;
     }
 
-    public List<String> getCondition() {
+    public List<List<Expression>> getCondition() {
         return condition;
     }
 
-    public void setCondition(List<String> condition) {
+    public void setCondition(List<List<Expression>> condition) {
         this.condition = condition;
     }
 
@@ -75,6 +79,6 @@ public class SelectStatement implements Statement {
                 "columns = " + columns + "\r\n" +
                 "tables = " + tables + "\r\n" +
                 "condition = " + condition + "\r\n" +
-                "orderColumn = '" + orderColumn + '\'' + "\r\n" ;
+                "orderColumn = '" + orderColumn + '\'' + "\r\n";
     }
 }

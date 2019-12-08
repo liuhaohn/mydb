@@ -1,6 +1,7 @@
 package com.hao.dao;
 
 import com.hao.bean.Data;
+import com.hao.bean.statement.Expression;
 import com.hao.util.IOUtils;
 import com.hao.util.SelectUtils;
 
@@ -126,12 +127,14 @@ public class Table {
         return res;
     }
 
-    public void update(Data update, Data condition) {
+    public int update(Data update, List<List<Expression>> condition) {
+        int count = 0;
         Data all = selectAll();
         for (int i = 0; i < all.data.size(); i++) {
             Object[] objects = all.data.get(i);
 
-            if (SelectUtils.matchCondition(columns, objects, condition)) { // 符合条件的行更改
+            if (SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
+                count++;
                 List<Column> udtc = Arrays.asList(update.columns);
                 for (int j = 0, i1; j < objects.length; j++) {
                     if ((i1 = udtc.indexOf(columns[j])) != -1) {
@@ -145,19 +148,23 @@ public class Table {
         }
         truncate();
         insert(all);
+        return count;
     }
 
-    public void delete(Data condition) {
+    public int delete(List<List<Expression>> condition) {
+        int count =0;
         Data all = selectAll();
         for (int i = 0; i < all.data.size(); i++) {
             Object[] objects = all.data.get(i);
-            if (SelectUtils.matchCondition(columns, objects, condition)) { // 符合条件的行更改
+            if (SelectUtils.or(columns, objects, condition)) { // 符合条件的行更改
+                count++;
                 objects = null;
             }
             all.data.set(i, objects);
         }
         truncate();
         insert(all);
+        return count;
     }
 
 

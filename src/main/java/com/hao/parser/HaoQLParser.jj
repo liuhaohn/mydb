@@ -6,8 +6,8 @@ PARSER_BEGIN (HaoQLParser)
     package com.hao.parser;
 
     import com.hao.parser.statement.*;
-   import java.util.ArrayList;
-   import java.util.LinkedHashMap;
+   import java.util.*;
+
    public class HaoQLParser {
          Statement initParser() throws ParseException, TokenMgrError {
             return init();
@@ -32,7 +32,10 @@ TOKEN [IGNORE_CASE]:
 |<WHERE : ("Where")>
 |<ORDERBY : ("Order By")>
 |<NULL : ("Null")>
-|<DATATYPE : ("INT")|("STR")|("FLOAT")>
+|<OR: "OR">
+|<AND: "AND">
+|<NOT: "NOT">
+|<DATATYPE : ("INT")|("STR")>
 |<DIGIT :(["0"-"9"]) >
 |<INTEGER :(["0"-"9"])+ >
 |<LETTER:(["a"-"z"]) >
@@ -105,12 +108,15 @@ String Literal():
 }
 {
     <QUOTE>
-    (T = <DIGIT> {sb.append(T.image);}
+    (
+     T = <NUMERAL> {sb.append(T.image);}
+    |T = <DIGIT> {sb.append(T.image);}
     |T = <LETTER> {sb.append(T.image);}
     |T = <LPAREN> {sb.append(T.image);}
     |T = <RPAREN> {sb.append(T.image);}
     |T = <COMMA> {sb.append(T.image);}
     |T = <DOT> {sb.append(T.image);}
+    |T = <INTEGER> {sb.append(T.image);}
     )*
     <QUOTE>
     {return sb.toString();}
@@ -191,7 +197,7 @@ Statement DropStatement():
 Statement DeleteStatement():
 {
     Token T;
-    ArrayList<String> clause = null;
+    List<List<Expression>> clause = null;
 }
 {
     <DELETE>
@@ -205,16 +211,16 @@ Statement DeleteStatement():
 Statement InsertStatement():
 {
     Token T;
-    ArrayList<String> attr;
+    ArrayList<String> attr = null;
     List<List<String>> values;
     Statement stmt;
 }
 {
     <INSERT>
     T = TableName()
-    <LPAREN>
+    [<LPAREN>
     attr = AttrList()
-    <RPAREN>
+    <RPAREN>]
     ( values = tuples()
         {   return new InsertStatement(T.image, attr, values);    }
     | stmt = SelectStatement()
@@ -290,7 +296,7 @@ Statement SelectStatement():
     Statement stmt;
     ArrayList<String> selList;
     ArrayList<String> tabList;
-    ArrayList<String> clause = null;
+    List<List<Expression>> clause = null;
     Token O = null;
 }
 {
@@ -306,6 +312,8 @@ Statement SelectStatement():
         return stmt;
     }
 }
+
+
 
 ArrayList<String> selectList():
 {
@@ -355,11 +363,7 @@ String term():
     String S;
 }
 {
-    T = ColumnName()
-        {return T.image;}
-    | S = Literal()
-        {return S;}
-    | T = <INTEGER>
+      T = <INTEGER>
         {return T.image;}
     | T = <DIGIT>
         {return T.image;}
@@ -390,59 +394,61 @@ ArrayList<String> exp() :
     { return expList; }
 }
 
-ArrayList<String> boolFactor() :
+Expression boolFactor() :
 {
     Token T;
-    ArrayList<String> S;
-    ArrayList<String> cond = new ArrayList<String>();
+    String columnName;
+    ArrayList<String> expr = new ArrayList<String>();
+    String S;
+    Expression res = new Expression();
 }
 {
-    [T = <LBRACKET>  { cond.add(T.image); }]
-    [T = "NOT "  { cond.add(T.image); }]
-    S = exp()   { cond.addAll(S); }
-    (   T = <LT>  { cond.add(T.image); }
-       |T = <GT>  { cond.add(T.image); }
-       |T = <EQ>  { cond.add(T.image); }
-    )
-    S = exp()   { cond.addAll(S); }
-    [T = <RBRACKET>  { cond.add(T.image); }]
-    { return cond;}
+    T = ColumnName()
+    { columnName = T.image; }
+    <EQ>
+    (expr = exp() | S = Literal() {expr.add(S);})
+    {
+        res.setColumnName(columnName);
+        res.setExpr(expr);
+        return res;
+    }
 }
 
-ArrayList<String> boolTerm() :
+List<Expression> boolTerm() :
 {
-    Token T;
-    ArrayList<String> S;
-    ArrayList<String> cond = new ArrayList<String>();
+    Expression S;
+    List<Expression> cond = new ArrayList<Expression>();
+    List<Expression> res = new ArrayList<Expression>();
 }
 {
-    S = boolFactor()   { cond.addAll(S); }
+    S = boolFactor()   { res.add(S); }
     [
-        T = "AND "  { cond.add(T.image); }
-        S = boolTerm()   { cond.addAll(S); }
+        <AND>
+        cond = boolTerm()   { res.addAll(cond); }
     ]
-    { return cond;}
+    { return res;}
 }
 
-ArrayList<String> Condition() :
+List<List<Expression>> Condition() :
 {
-    Token T;
-    ArrayList<String> S;
-    ArrayList<String> cond = new ArrayList<String>();
+    List<Expression> S;
+    List<List<Expression>> cond = new ArrayList<List<Expression>>();
+    List<List<Expression>> res = new ArrayList<List<Expression>>();
 }
 {
-    S = boolTerm()   { cond.addAll(S); }
-    [   T = "OR "          { cond.add(T.image); }
-        S = Condition()   { cond.addAll(S); }
+    S = boolTerm()   { res.add(S); }
+    [
+        <OR>
+        cond = Condition()   { res.addAll(cond); }
     ]
-    { return cond;}
+    { return res;}
 }
 
 Statement UpdateStatement() :
 {
     Token T;
     LinkedHashMap<String, String> mp;
-    ArrayList<String> condition;
+    List<List<Expression>> condition;
 }
 {
     <UPDATE>

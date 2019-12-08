@@ -1,4 +1,4 @@
-package com.hao.parser.statement;
+package com.hao.bean.statement;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ public class DeleteStatement implements Statement {
     }
 
     String tableName;
-    List<String> condition;
+    List<List<Expression>> condition;
 
-    public DeleteStatement(String tableName, List<String> condition) {
+    public DeleteStatement(String tableName, List<List<Expression>> condition) {
         this.tableName = tableName;
         this.condition = condition;
     }
@@ -24,11 +24,11 @@ public class DeleteStatement implements Statement {
         this.tableName = tableName;
     }
 
-    public List<String> getCondition() {
+    public List<List<Expression>> getCondition() {
         return condition;
     }
 
-    public void setCondition(List<String> condition) {
+    public void setCondition(List<List<Expression>> condition) {
         this.condition = condition;
     }
 

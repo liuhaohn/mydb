@@ -1,8 +1,7 @@
-package com.hao.parser.statement;
+package com.hao.bean.statement;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class UpdateStatement implements Statement {
     @Override
@@ -12,9 +11,9 @@ public class UpdateStatement implements Statement {
 
     private String tableName;
     private LinkedHashMap set;
-    private List<String> condition;
+    private List<List<Expression>> condition;
 
-    public UpdateStatement(String tableName, LinkedHashMap set, List<String> condition) {
+    public UpdateStatement(String tableName, LinkedHashMap set, List<List<Expression>> condition) {
         this.tableName = tableName;
         this.set = set;
         this.condition = condition;
@@ -36,11 +35,11 @@ public class UpdateStatement implements Statement {
         this.set = set;
     }
 
-    public List<String> getCondition() {
+    public List<List<Expression>> getCondition() {
         return condition;
     }
 
-    public void setCondition(List<String> condition) {
+    public void setCondition(List<List<Expression>> condition) {
         this.condition = condition;
     }
 }

@@ -14,12 +14,12 @@ public class Data {
         for (Column col : columns) {
             sb.append(col.getColName()).append("\t");
         }
-        sb.deleteCharAt(sb.length() - 1).append("\n");
+        sb.deleteCharAt(sb.length() - 1).append("\r\n");
         for (Object[] objs : data) {
             for (Object obj : objs) {
                 sb.append(obj).append("\t");
             }
-            sb.deleteCharAt(sb.length() - 1).append("\n");
+            sb.deleteCharAt(sb.length() - 1).append("\r\n");
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();

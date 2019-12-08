@@ -3,7 +3,7 @@ package com.hao;
 
 import com.hao.parser.HaoQLParser;
 import com.hao.parser.ParseException;
-import com.hao.parser.statement.Statement;
+import com.hao.bean.statement.Statement;
 
 import java.io.StringReader;
 import java.util.Scanner;
@@ -12,9 +12,9 @@ import java.util.Scanner;
 /*
 用于测试解析器是否可以正常运行，将HaoQL解析成Statement
 
-update student set name="a" where age=1
-select a,b,c from student where age=3*4+5 order by name
-delete from student where age = 3
+update student set name="a" where age=4 and age =4 and age=5 or age=3
+select a,b,c from student where name="abc" and age ="def" and age=5 or age="ijk" order by name
+delete from student where age=3 and age =4 and age=5 or age=6
 insert into student(a,b,c) values (1,2,"3"),(3,5,"6")
 drop table student
 create table student ( a int,b str,c float )
