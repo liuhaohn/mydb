@@ -16,7 +16,7 @@
 ## 支持
 * 数据定义语句（DML）
     1. create，支持表名，字段名和类型，例如：
-'''sql
+```sql
     create table test(
     c1 str,
     c2 int,
@@ -24,7 +24,7 @@
     c4 int,
     c5 str
     );
-'''
+```
 
 
 
