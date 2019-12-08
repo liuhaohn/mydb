@@ -1,7 +1,6 @@
 # HaoQL：java实现的SQL子集数据库实例
 ## 简介
-* HaoQL通过javacc生成的解析器，解析SQL语句的子集成Statement对象，通过处理程序（Process对象）处理SQL请求。
-* 通过Main可以启动服务器，使用telnet连接到服务器即可使用HaoQL。
+* HaoQL通过javacc生成的解析器，解析SQL语句的子集成Statement对象，通过处理程序（Process对象）处理SQL请求，通过Main可以启动服务器，使用telnet连接到服务器即可使用HaoQL。
 * HaoQL服务端使用了线程池，支持多telnet客户端并发连接，可以在server.properties中配置线程池数量以及服务端口，
   默认的服务端口为6060，默认的线程数为10，可以在Constants对象中修改默认值。
 * HaoQL支持创建、删除表，以及表的增删改查的SQL语句，具体见下一节。
