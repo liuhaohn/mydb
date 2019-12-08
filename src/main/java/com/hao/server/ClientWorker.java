@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 /**
  * Client Worker handling request of a client.
  *
- * @author a.khettar
  */
 public class ClientWorker implements Runnable {
 

@@ -3,8 +3,6 @@ package com.hao.server;
 /**
  * Constants Utility Class.
  * 
- * @author a.khettar
- * 
  */
 public final class Constants {
 

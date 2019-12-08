@@ -8,13 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created with IntelliJ IDEA.
- * User: a.khettar
- * Date: 20/02/2013
- * Time: 18:02
- * To change this template use File | Settings | File Templates.
- */
 public class TelnetServer {
 
     private final Logger logger = Logger.getLogger(TelnetServer.class.getName());
@@ -59,7 +52,7 @@ public class TelnetServer {
 
     /**
      * Checks if the server is running.
-     * 
+     *
      * @return
      */
     public boolean isRunning() {
@@ -68,7 +61,7 @@ public class TelnetServer {
 
     /**
      * Shutdowns all the connection and the server
-     * 
+     *
      * @throws IOException
      */
     public void shutDown() throws IOException {

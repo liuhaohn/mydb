@@ -6,12 +6,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-/**
- * ConfigurationManager
- * 
- * @author a.khettar
- * 
- */
 public enum ConfigurationManager {
 
     INSTANCE;
