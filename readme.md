@@ -7,7 +7,7 @@
 * HaoQL将表单以CSV格式的文件存储在项目目录下(如文件 `test` )，首行是字段名和字段类型，分隔符为\001。
 
 ## 使用
-1. 运行Main对象（使用ide）
+1. 运行Main对象（使用ide），或者使用 [mydb.exe](https://github.com/liuhaohn/mydb/releases/tag/1.0) 
 2. 使用telnet连接（windows下命令行中输入：telnet localhost 6060）
 3. 当成mysql客户端用即可，支持语句具体如下
 
