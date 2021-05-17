@@ -4,7 +4,7 @@
 * HaoQL服务端使用了线程池，支持多telnet客户端并发连接，可以在server.properties中配置线程池数量以及服务端口，
   默认的服务端口为6060，默认的线程数为10，可以在Constants对象中修改默认值。
 * HaoQL支持创建、删除表，以及表的增删改查的SQL语句，具体见下一节。
-* HaoQL将表单以CSV格式的文件存储在项目目录下，首行是字段名和字段类型，分隔符为\001。
+* HaoQL将表单以CSV格式的文件存储在项目目录下(如文件 `test` )，首行是字段名和字段类型，分隔符为\001。
 
 ## 使用
 1. 运行Main对象（使用ide）
@@ -34,7 +34,7 @@
        insert into test values ("abc",123,"def",456,"ghi");    
        insert into test select * from test where c1="abc";
        ```
-    2. `delete` 支持删除符合条件的行，`where`子句可选，无`where`条件相对于清空表，`where`条件语法参考后文，例如：
+    2. `delete` 支持删除符合条件的行，`where`子句可选，无`where`条件相当于清空表，`where`条件语法参考后文，例如：
         ```sql
        delete from test where c1="abc" and c2=123 or c3="def";
        delete from test;
